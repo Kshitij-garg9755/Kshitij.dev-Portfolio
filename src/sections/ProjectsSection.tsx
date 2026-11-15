@@ -14,27 +14,12 @@ function ProjectArtwork({ project, number }: { project: Project; number: number 
   return (
     <div className={`project-showcase-art art-${project.theme}`}>
       <div className="art-atmosphere" aria-hidden="true" />
-      {thumbnail && failedThumbnail !== thumbnail ? <img className="project-thumbnail" src={thumbnail} alt={`${project.title} project preview`} loading="lazy" onError={() => setFailedThumbnail(thumbnail)} /> : <>
-      <div className="art-browser">
-        <div className="art-browser-bar"><span /><span /><span /><span className="art-address">KSHITIJ.DEV / PROJECT {String(number).padStart(2, '0')}</span></div>
-        <div className="art-browser-body">
-          <div className="art-rail"><i /><i /><i /><i /><b /></div>
-          <div className="art-content">
-            <div className="art-content-top"><span className="art-chip">{project.category}</span><span className="art-menu-mark">•••</span></div>
-            <span className="art-kicker">ILLUSTRATIVE INTERFACE STUDY</span>
-            <h3>{project.title}</h3>
-            <div className="art-composition" aria-hidden="true">
-              <div className="art-panel art-panel-primary"><span className="art-panel-mark" /><i /><i /><i /></div>
-              <div className="art-panel art-panel-secondary"><i /><i /><i /><i /></div>
-              <div className="art-orb" />
-              <div className="art-panel art-panel-footer"><i /><i /><i /></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <span className="art-disclaimer">Visual concept · not a product screenshot</span>
-      <span className="art-index">0{number} / 0{projects.length}</span>
-      </>}
+      {thumbnail && failedThumbnail !== thumbnail ? <img className="project-thumbnail" src={thumbnail} alt={`${project.title} project preview`} loading="lazy" onError={() => setFailedThumbnail(thumbnail)} /> : <div className={`project-artwork project-artwork-${project.theme}`} aria-label={`${project.title} abstract artwork`}>
+        <span className="art-index">0{number} / 0{projects.length}</span>
+        <div className="art-orbit art-orbit-one" /><div className="art-orbit art-orbit-two" />
+        <div className="art-monogram" aria-hidden="true">{project.theme === 'agriculture' ? 'K' : project.theme === 'education' ? 'S' : project.theme === 'hosting' ? 'C' : 'A'}</div>
+        <span className="art-category">{project.category.toUpperCase()}</span>
+      </div>}
     </div>
   );
 }

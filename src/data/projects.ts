@@ -1,4 +1,4 @@
-export type ProjectTheme = 'agriculture' | 'internship' | 'education';
+export type ProjectTheme = 'agriculture' | 'internship' | 'education' | 'hosting';
 export type ProjectStatus = 'In Progress' | 'Completed';
 
 export interface Project {
@@ -55,6 +55,30 @@ export const projects: Project[] = [
     features: [],
     status: 'Completed',
     theme: 'education',
+  },
+  {
+    id: 'cloudnova-hosting',
+    title: 'CloudNova Hosting',
+    shortDescription: 'A hosting project exploring a clear, focused web experience for cloud services.',
+    description: '',
+    githubUrl: 'https://github.com/Kshitij-garg9755/CLOUDNOVA-HOSTING',
+    liveUrl: 'https://cloudnova-hosting.netlify.app',
+    technologies: [],
+    category: 'Web Development',
+    features: [],
+    theme: 'hosting',
+  },
+  {
+    id: 'kshitij-auth-engine',
+    title: 'Kshitij Auth Engine',
+    shortDescription: 'A Python FastAPI authentication system with Email OTP, JWT, Argon2 password hashing and refresh token rotation.',
+    description: '',
+    githubUrl: '',
+    liveUrl: '',
+    technologies: ['Python', 'FastAPI', 'JWT', 'Argon2'],
+    category: 'Backend Development',
+    features: ['Email OTP', 'JWT authentication', 'Argon2 password hashing', 'Refresh token rotation'],
+    theme: 'internship',
   },
 ];
 

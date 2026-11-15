@@ -36,32 +36,32 @@ function Universe({ pointerRef }: { pointerRef: MutableRefObject<{ x: number; y:
       <group ref={sculpture}>
         <mesh>
           <icosahedronGeometry args={[1.12, 1]} />
-          <meshPhysicalMaterial color="#36c77c" emissive="#0b472b" emissiveIntensity={0.18} metalness={0.48} roughness={0.2} clearcoat={0.8} clearcoatRoughness={0.15} transparent opacity={0.72} wireframe />
+          <meshPhysicalMaterial color="#007BA7" emissive="#003747" emissiveIntensity={0.24} metalness={0.48} roughness={0.2} clearcoat={0.8} clearcoatRoughness={0.15} transparent opacity={0.72} wireframe />
         </mesh>
         <mesh rotation={[0.35, 0.2, 0.1]}>
           <icosahedronGeometry args={[0.78, 1]} />
-          <meshBasicMaterial color="#b9ffda" wireframe transparent opacity={0.34} />
+          <meshBasicMaterial color="#FF2D95" wireframe transparent opacity={0.34} />
         </mesh>
       </group>
       <group ref={orbit}>
         <mesh rotation={[1.04, 0.2, -0.25]}>
           <torusGeometry args={[1.85, 0.006, 6, 100]} />
-          <meshBasicMaterial color="#62e49a" transparent opacity={0.4} />
+          <meshBasicMaterial color="#007BA7" transparent opacity={0.48} />
         </mesh>
         <mesh rotation={[0.62, -0.6, 0.8]}>
           <torusGeometry args={[2.18, 0.004, 6, 100]} />
-          <meshBasicMaterial color="#b5ffd6" transparent opacity={0.2} />
+          <meshBasicMaterial color="#FF2D95" transparent opacity={0.3} />
         </mesh>
       </group>
       <points ref={particles}>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[positions, 3]} />
         </bufferGeometry>
-        <pointsMaterial color="#b1ffcf" size={0.028} transparent opacity={0.72} sizeAttenuation />
+        <pointsMaterial color="#FF2D95" size={0.028} transparent opacity={0.76} sizeAttenuation />
       </points>
       <ambientLight intensity={1.15} />
-      <pointLight position={[3, 2.5, 4]} color="#baffd4" intensity={15} />
-      <pointLight position={[-3, -2, 1]} color="#20a667" intensity={8} />
+      <pointLight position={[3, 2.5, 4]} color="#007BA7" intensity={15} />
+      <pointLight position={[-3, -2, 1]} color="#FF2D95" intensity={8} />
     </group>
   );
 }

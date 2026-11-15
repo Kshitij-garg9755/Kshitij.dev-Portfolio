@@ -5,23 +5,17 @@ const HeroCanvas = lazy(() => import('./HeroCanvas'));
 export function HeroScene() {
   const [enabled, setEnabled] = useState(() => {
     if (typeof window === 'undefined') return false;
-    const compactViewport = window.matchMedia('(max-width: 720px)').matches;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const lowPowerDevice = (navigator.hardwareConcurrency ?? 4) <= 4;
-    return !reducedMotion && !compactViewport && !lowPowerDevice;
+    return !reducedMotion;
   });
 
   useEffect(() => {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const compactViewport = window.matchMedia('(max-width: 720px)');
-    const lowPowerDevice = (navigator.hardwareConcurrency ?? 4) <= 4;
-    const updateScene = () => setEnabled(!reducedMotion.matches && !compactViewport.matches && !lowPowerDevice);
+    const updateScene = () => setEnabled(!reducedMotion.matches);
 
     reducedMotion.addEventListener('change', updateScene);
-    compactViewport.addEventListener('change', updateScene);
     return () => {
       reducedMotion.removeEventListener('change', updateScene);
-      compactViewport.removeEventListener('change', updateScene);
     };
   }, []);
 

@@ -2,7 +2,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
 import { Link, NavLink, Route, Routes, useLocation } from 'react-router-dom';
-import { ArrowRight, ArrowUpRight, DownloadIcon, GithubMark, MenuIcon } from './components/Icons';
+import { ArrowRight, ArrowUpRight, DownloadIcon, GithubMark, LinkedInMark, MailMark, MenuIcon } from './components/Icons';
 import { HeroScene } from './components/HeroScene';
 import { profile, skillGroups } from './data/portfolio';
 import { getProjectThumbnail, getPublicProjectUrl, projects } from './data/projects';
@@ -10,18 +10,20 @@ import CertificatesSection from './sections/CertificatesSection';
 import ProjectsSection from './sections/ProjectsSection';
 
 const navItems = [
-  { label: 'About', to: '/about' },
-  { label: 'Skills', to: '/skills' },
-  { label: 'Projects', to: '/projects' },
-  { label: 'Certificates', to: '/certificates' },
-  { label: 'Resume', to: '/resume' },
-  { label: 'Contact', to: '/contact' },
+  { label: 'Home', to: '/', hash: '' },
+  { label: 'About', to: '/about', hash: '' },
+  { label: 'Expertise', to: '/expertise', hash: '' },
+  { label: 'Work', to: '/projects', hash: '' },
+  { label: 'Certificates', to: '/certificates', hash: '' },
+  { label: 'Resume', to: '/resume', hash: '' },
+  { label: 'Contact', to: '/contact', hash: '' },
 ];
 
 const pageMetadata: Record<string, { title: string; description: string }> = {
   '/': { title: 'Kshitij.dev — Kshitij Garg', description: 'Kshitij Garg is a Computer Science Engineering student interested in full-stack development, Python, AI, and building practical software.' },
   '/about': { title: 'About — Kshitij.dev', description: 'Meet Kshitij Garg, a Computer Science Engineering student learning full-stack development and building practical software projects.' },
   '/skills': { title: 'Skills — Kshitij.dev', description: 'Explore Kshitij Garg’s confirmed frontend, Python, development tools, and areas of interest.' },
+  '/expertise': { title: 'Expertise — Kshitij.dev', description: 'Explore Kshitij Garg’s development focus, current skills, tools, and interests.' },
   '/projects': { title: 'Projects — Kshitij.dev', description: 'Explore selected project work by Kshitij Garg, with honest project details and interactive visual previews.' },
   '/certificates': { title: 'Certificates — Kshitij.dev', description: 'Verified certificates and professional learning from Kshitij Garg.' },
   '/resume': { title: 'Resume — Kshitij.dev', description: 'View or download Kshitij Garg’s resume when the public PDF is available.' },
@@ -34,12 +36,17 @@ function Header() {
   const location = useLocation();
   const [openMenuPath, setOpenMenuPath] = useState<string | null>(null);
   const menuOpen = openMenuPath === location.pathname;
+  useEffect(() => {
+    if (!location.hash) return;
+    const target = location.hash.slice(1);
+    requestAnimationFrame(() => document.getElementById(target)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  }, [location.pathname, location.hash]);
   return (
     <header id="top" className="site-header">
       <div className="header-inner">
         <Link className="wordmark" to="/" aria-label="Kshitij.dev home"><span className="wordmark-mark">k<span>.</span></span><span>Kshitij<span className="muted">.dev</span></span></Link>
         <nav id="main-navigation" className={`main-nav${menuOpen ? ' is-open' : ''}`} aria-label="Main navigation">
-          {navItems.map((item) => <NavLink key={item.to} to={item.to} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>{item.label}</NavLink>)}
+          {navItems.map((item) => <NavLink key={item.label} to={{ pathname: item.to, hash: item.hash }} end={item.label === 'Home'} className={({ isActive }) => `nav-link${isActive && (location.hash === item.hash || (!location.hash && item.label === 'Home')) ? ' active' : ''}`}>{item.label}</NavLink>)}
           <Link className="nav-cta" to="/contact">Let’s talk <ArrowUpRight /></Link>
         </nav>
         <button className="menu-toggle" type="button" aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'} aria-expanded={menuOpen} aria-controls="main-navigation" onClick={() => setOpenMenuPath(menuOpen ? null : location.pathname)}><MenuIcon close={menuOpen} /></button>
@@ -52,8 +59,8 @@ function Footer() {
   return <footer className="site-footer">
     <div className="footer-main">
       <div className="footer-intro"><Link className="wordmark footer-wordmark" to="/"><span className="wordmark-mark">k<span>.</span></span><span>Kshitij<span className="muted">.dev</span></span></Link><p>Curious mind. Thoughtful builds.<br />Always learning what’s next.</p></div>
-      <nav className="footer-nav" aria-label="Footer navigation">{navItems.map((item) => <Link key={item.to} to={item.to}>{item.label}</Link>)}</nav>
-      <div className="footer-socials"><span className="card-label">ELSEWHERE</span><a href={profile.githubUrl} target="_blank" rel="noreferrer">GitHub <ArrowUpRight /></a><a href={profile.linkedinUrl} target="_blank" rel="noreferrer">LinkedIn <ArrowUpRight /></a>{profile.email && <a href={`mailto:${profile.email}`}>Email <ArrowUpRight /></a>}</div>
+      <nav className="footer-nav" aria-label="Footer navigation"><span className="footer-label">EXPLORE</span>{navItems.map((item) => <Link key={item.label} to={{ pathname: item.to, hash: item.hash }}>{item.label}</Link>)}<Link to="/skills">Skills</Link><Link to="/certificates">Certificates</Link><Link to="/resume">Resume</Link><Link to="/projects">All projects</Link></nav>
+      <div className="footer-socials"><span className="footer-label">ELSEWHERE</span><a href={profile.githubUrl} target="_blank" rel="noreferrer"><GithubMark /> GitHub <ArrowUpRight /></a><a href={profile.linkedinUrl} target="_blank" rel="noreferrer"><LinkedInMark /> LinkedIn <ArrowUpRight /></a>{profile.email && <a href={`mailto:${profile.email}`}><MailMark /> Email <ArrowUpRight /></a>}</div>
     </div>
     <div className="footer-bottom"><span>© {currentYear} Kshitij Garg · Designed & built with care</span><a className="back-top" href="#top">Back to top ↑</a></div>
   </footer>;
@@ -69,35 +76,18 @@ function PageFrame({ children }: { children: React.ReactNode }) {
 }
 
 function HomePage() {
-  const [roleIndex, setRoleIndex] = useState(0);
   const reduceMotion = useReducedMotion();
-  useEffect(() => {
-    if (reduceMotion) return;
-    const interval = window.setInterval(() => setRoleIndex((index) => (index + 1) % profile.roles.length), 2800);
-    return () => window.clearInterval(interval);
-  }, [reduceMotion]);
-
-  return <PageFrame>
-    <section className="hero wrap" aria-labelledby="hero-title">
-      <div className="hero-copy">
-        <div className="availability"><span className="pulse-dot" />Computer Science Engineering <span className="availability-divider">·</span> Developer portfolio</div>
-            <h1 id="hero-title">Hi, I’m<br /><span className="serif-accent">Kshitij.</span></h1>
-        <p className="hero-description">I build ideas into digital experiences.</p>
-        <div className="home-role-line"><span>Exploring</span><AnimatePresence mode="wait" initial={false}><motion.strong key={profile.roles[roleIndex]} initial={reduceMotion ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={reduceMotion ? undefined : { opacity: 0, y: -8 }} transition={{ duration: reduceMotion ? 0 : 0.22 }}>{profile.roles[roleIndex]}</motion.strong></AnimatePresence></div>
-        <p className="home-introduction">{profile.introduction}</p>
-        <div className="hero-actions"><Link className="button button-primary" to="/projects">Explore my work <ArrowRight /></Link><Link className="button button-quiet" to="/contact">Let’s connect <ArrowUpRight /></Link></div>
-        <div className="hero-meta"><span>{profile.education}</span><span className="meta-separator" /><span>{profile.technologies.join(' · ')}</span></div>
-      </div>
-      <div className="hero-visual"><HeroScene /><div className="visual-caption"><span>01 / A work in progress</span><span>STAY CURIOUS ↗</span></div><div className="hero-coordinate">IDEAS<br />IN MOTION</div></div>
-      <div className="hero-index">SCROLL TO EXPLORE <span>↓</span></div>
-    </section>
-    <section className="intro-strip wrap"><span className="eyebrow">A little about me</span><p>I’m a Computer Science Engineering student drawn to <em>practical software, curious experiments,</em> and the details that make a digital experience feel considered.</p><Link className="text-link" to="/about">More about me <ArrowRight /></Link></section>
-    <section className="home-work wrap"><div className="section-topline"><div><span className="eyebrow"><span className="eyebrow-dot" />Selected work</span><h2>Learning by <span className="serif-accent">making.</span></h2></div><Link className="text-link" to="/projects">All projects <ArrowRight /></Link></div><ProjectGallery items={projects.slice(0, 2)} variant="home" /></section>
-    <section className="home-paths wrap" aria-label="Explore the portfolio"><Link to="/about"><span>01 / PROFILE</span><strong>Meet the person<br />behind the work.</strong><ArrowUpRight /></Link><Link to="/skills"><span>02 / TOOLKIT</span><strong>Explore what I’m<br />learning and using.</strong><ArrowUpRight /></Link><Link to="/certificates"><span>03 / LEARNING</span><strong>Follow my learning<br />journey as it grows.</strong><ArrowUpRight /></Link></section>
-    <section className="home-contact wrap"><div><span className="eyebrow">Have an idea?</span><h2>Let’s build<br /><span className="serif-accent">something.</span></h2></div><Link className="button button-primary" to="/contact">Let’s connect <ArrowUpRight /></Link><div className="home-contact-grid" aria-hidden="true" /></section>
-  </PageFrame>;
+  const chapters = ['INTRODUCTION', 'ABOUT ME', 'MY EXPERTISE', 'SELECTED WORK', 'CONTACT'];
+  const goTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
+  return <PageFrame><div className="immersive-shell">
+    <nav className="chapter-rail" aria-label="Section progress">{chapters.map((chapter, index) => <a href={`#chapter-${index + 1}`} key={chapter} aria-label={`${String(index + 1).padStart(3, '0')} ${chapter}`}><span>{String(index + 1).padStart(3, '0')}</span><i /></a>)}</nav>
+    <section id="chapter-1" className="chapter hero-chapter" aria-labelledby="hero-title"><div className="chapter-top"><span>001 / 005 � INTRODUCTION</span><span>INDEPENDENT DEVELOPER � JABALPUR, INDIA</span></div><div className="hero-scene"><HeroScene /></div><div className="hero-editorial"><span className="eyebrow"><span className="eyebrow-dot" />KSHITIJ GARG � FULL STACK DEVELOPER</span><h1 id="hero-title">BUILDING DIGITAL<br /><span>EXPERIENCES.</span></h1><p>I�m Kshitij Garg, a Full Stack Developer passionate about building modern web applications, intelligent systems and creative digital experiences.</p><div className="hero-actions"><button className="button button-primary" onClick={() => goTo('chapter-5')}>Get in touch <ArrowUpRight /></button><button className="button button-quiet" onClick={() => goTo('chapter-4')}>Explore my work <ArrowRight /></button></div></div><div className="chapter-bottom"><span>01 � DESIGN � CODE � CURIOSITY</span><button onClick={() => goTo('chapter-2')}>SCROLL TO EXPLORE ?</button><span>EST. 2024 � CONTINUOUSLY LEARNING</span></div></section>
+    <section id="chapter-2" className="chapter editorial-chapter about-chapter"><div className="chapter-top"><span>002 / 005 � ABOUT ME</span><span>PROFILE / 01</span></div><div className="chapter-content"><span className="eyebrow">A LITTLE CONTEXT</span><h2>THE DEVELOPER<br />BEHIND THE CODE.</h2><div className="about-editorial"><p className="about-statement">I�m Kshitij Garg, a computer science student interested in building useful digital products with care.</p><div><p>I am a passionate software developer focused on creating useful digital products through modern frontend technologies, Python backend development and intelligent integrations.</p><dl><div><dt>EDUCATION</dt><dd>B.Tech Computer Science Engineering</dd></div><div><dt>INSTITUTION</dt><dd>Shri Ram Group of Institutions, Jabalpur</dd></div><div><dt>GRADUATION</dt><dd>Expected 2027</dd></div></dl></div></div></div><div className="chapter-bottom"><span>02 � PROFILE</span><button onClick={() => goTo('chapter-3')}>NEXT CHAPTER ?</button><Link to="/about">MORE ABOUT ME ?</Link></div></section>
+    <section id="chapter-3" className="chapter editorial-chapter expertise-chapter"><div className="chapter-top"><span>003 / 005 � MY EXPERTISE</span><span>CAPABILITIES / 03</span></div><div className="chapter-content"><span className="eyebrow">THOUGHTFUL BUILDS, FROM FRONT TO BACK</span><h2>WHAT I DO.</h2><div className="expertise-list">{[{n:'01',title:'FRONTEND DEVELOPMENT',text:'HTML, CSS, JavaScript, Responsive UI and Interactive Experiences.'},{n:'02',title:'BACKEND DEVELOPMENT',text:'Python, FastAPI, Flask, REST APIs and Database Integration.'},{n:'03',title:'FULL STACK APPLICATIONS',text:'Authentication, Email OTP, API Integration and Deployment.'}].map(item=><article key={item.n}><span>{item.n}</span><div><h3>{item.title}</h3><p>{item.text}</p></div><ArrowUpRight /></article>)}</div><div className="personal-toolkit"><div><span className="personal-kicker">MY CURRENT TOOLKIT</span><p>{profile.technologies.join(' · ')}<span>{profile.tools.join(' · ')}</span></p></div><Link to="/skills">ALL SKILLS <ArrowUpRight /></Link></div><div className="chapter-paths"><span className="personal-kicker">MORE OF MY JOURNEY</span><Link to="/about">About me <ArrowUpRight /></Link><Link to="/certificates">Certificates <ArrowUpRight /></Link><Link to="/resume">Resume <ArrowUpRight /></Link></div></div><div className="chapter-bottom"><span>03 � CAPABILITIES</span><button onClick={() => goTo('chapter-4')}>NEXT CHAPTER ?</button><Link to="/skills">VIEW SKILLS ?</Link></div></section>
+    <section id="chapter-4" className="chapter work-chapter"><div className="chapter-top"><span>004 / 005 � SELECTED WORK</span><span>PROJECTS / {String(projects.length).padStart(2,'0')}</span></div><div className="chapter-content"><div className="work-heading"><div><span className="eyebrow">A FEW THINGS MADE REAL</span><h2>SELECTED<br />PROJECTS.</h2></div><Link to="/projects">FULL PROJECT INDEX <ArrowUpRight /></Link></div><ProjectGallery items={projects} variant="home" /></div><div className="chapter-bottom"><span>04 � SELECTED WORK</span><button onClick={() => goTo('chapter-5')}>NEXT CHAPTER ?</button><span>BUILD � LEARN � REPEAT</span></div></section>
+    <section id="chapter-5" className="chapter contact-chapter"><div className="chapter-top"><span>005 / 005 � CONTACT</span><span>AVAILABLE FOR GOOD CONVERSATIONS</span></div><div className="contact-editorial"><span className="eyebrow">HAVE AN IDEA?</span><h2>LET�S BUILD<br /><span>IT.</span></h2><p>Have a question, an idea, or an opportunity to share? I�d be glad to hear from you.</p><Link className="button button-primary" to="/contact">Get in touch <ArrowUpRight /></Link><div className="contact-links"><a href={profile.githubUrl} target="_blank" rel="noreferrer">GITHUB ?</a><a href={profile.linkedinUrl} target="_blank" rel="noreferrer">LINKEDIN ?</a>{profile.email && <a href={`mailto:${profile.email}`}>{profile.email.toUpperCase()} ?</a>}</div></div><div className="chapter-bottom"><span>05 � END OF TRANSMISSION</span><a href="#chapter-1">BACK TO THE BEGINNING ?</a><span>� {currentYear} KSHITIJ GARG</span></div></section>
+  </div></PageFrame>;
 }
-
 function AboutPage() {
   return <PageFrame><section className="inner-page wrap about-page">
     <SectionHeading eyebrow="About me" title={<>Curious by nature.<br /><span className="serif-accent">Developer by choice.</span></>} detail="A little about what I’m learning, what I care about, and how I like to build." />
@@ -125,30 +115,49 @@ function SkillsPage() {
   </section></PageFrame>;
 }
 
+function ExpertisePage() {
+  const services = [
+    { n: '01', title: 'FRONTEND DEVELOPMENT', text: 'HTML, CSS, JavaScript, responsive UI, and interactive web experiences.' },
+    { n: '02', title: 'BACKEND DEVELOPMENT', text: 'Python, Flask, FastAPI, REST APIs, and database integration.' },
+    { n: '03', title: 'FULL STACK APPLICATIONS', text: 'Connecting interfaces and services with authentication, API integration, and deployment.' },
+  ];
+  return <PageFrame><section className="inner-page wrap expertise-page">
+    <SectionHeading eyebrow="What I do" title={<>Thoughtful builds,<br /><span className="serif-accent">from front to back.</span></>} detail="My current development focus, the tools I work with, and the kinds of products I enjoy building." />
+    <div className="expertise-page-list">{services.map((service) => <article key={service.n}><span>{service.n}</span><div><h2>{service.title}</h2><p>{service.text}</p></div><ArrowUpRight /></article>)}</div>
+    <div className="expertise-page-lower"><section><span className="personal-kicker">CURRENT TOOLKIT</span><div className="resume-skill-list">{[...profile.technologies, ...profile.tools].map((skill) => <span key={skill}>{skill}</span>)}</div><Link className="text-link" to="/skills">See skills &amp; tools <ArrowRight /></Link></section><section><span className="personal-kicker">AREAS OF INTEREST</span><div className="about-interest-list">{profile.interests.map((interest, index) => <div key={interest}><span>0{index + 1}</span><strong>{interest}</strong><ArrowUpRight /></div>)}</div></section></div>
+  </section></PageFrame>;
+}
+
 function ProjectCard({ project, index, onOpen }: { project: (typeof projects)[number]; index: number; onOpen: () => void }) {
   const thumbnail = getProjectThumbnail(project.thumbnail);
   const [failedThumbnail, setFailedThumbnail] = useState<string>();
   const githubUrl = getPublicProjectUrl(project.githubUrl);
   const liveUrl = getPublicProjectUrl(project.liveUrl);
+  const marks = ['01', '02', '03', '04', '05'];
+  const mark = project.theme === 'agriculture' ? 'K' : project.theme === 'education' ? 'S' : project.theme === 'hosting' ? 'C' : project.title.includes('Auth') ? 'A' : 'KG';
 
-  return <article className="project-card">
+  return <article className={`project-card project-card-${project.theme}`}>
     <div className={`project-art project-art-${index + 1}`}>
-      <span className="project-art-index">0{index + 1}</span>
-      {thumbnail && failedThumbnail !== thumbnail ? <img className="project-card-thumbnail" src={thumbnail} alt={`${project.title} project preview`} loading="lazy" onError={() => setFailedThumbnail(thumbnail)} /> : <div className="project-art-shape" aria-hidden="true"><span /><span /><span /></div>}
-      <span className="project-status">{project.category}{project.status ? ` / ${project.status}` : ''}</span>
+      <div className="home-project-artwork" aria-hidden="true">
+        {thumbnail && failedThumbnail !== thumbnail ? <img className="project-card-thumbnail" src={thumbnail} alt="" loading="lazy" onError={() => setFailedThumbnail(thumbnail)} /> : <>
+          <span className="home-art-line home-art-line-one" /><span className="home-art-line home-art-line-two" />
+          <span className="home-art-orbit" /><span className="home-art-monogram">{mark}</span>
+        </>}
+      </div>
+      <span className="project-art-index">{marks[index] ?? `0${index + 1}`}</span>
+      <span className="project-status">{project.category}</span>
     </div>
     <div className="project-info">
-      <div><h3>{project.title}</h3><p>{project.shortDescription}</p></div>
+      <div className="home-project-copy"><span className="home-project-kicker">SELECTED WORK / {marks[index] ?? `0${index + 1}`}</span><h3>{project.title}</h3><p>{project.shortDescription}</p></div>
       {project.technologies.length > 0 && <div className="project-tags">{project.technologies.map((technology) => <span key={technology}>{technology}</span>)}</div>}
       <div className="project-links">
-        {githubUrl && <a href={githubUrl} target="_blank" rel="noopener noreferrer"><GithubMark /> GitHub Repository <ArrowUpRight /></a>}
-        {liveUrl && <a href={liveUrl} target="_blank" rel="noopener noreferrer">Live Demo <ArrowUpRight /></a>}
-        <button type="button" className="project-detail-trigger" onClick={onOpen}>View Details <ArrowUpRight /></button>
+        {liveUrl && <a href={liveUrl} target="_blank" rel="noopener noreferrer">Visit project <ArrowUpRight /></a>}
+        {githubUrl && <a href={githubUrl} target="_blank" rel="noopener noreferrer"><GithubMark /> Source <ArrowUpRight /></a>}
+        <button type="button" className="project-detail-trigger" onClick={onOpen}>Details <ArrowUpRight /></button>
       </div>
     </div>
   </article>;
 }
-
 function ProjectGallery({ items, variant = 'projects' }: { items: typeof projects; variant?: 'projects' | 'home' }) {
   const [selectedProject, setSelectedProject] = useState<(typeof projects)[number] | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -185,33 +194,16 @@ function ProjectGallery({ items, variant = 'projects' }: { items: typeof project
 }
 
 function ResumePage() {
-  const resumeUrl = import.meta.env.VITE_RESUME_URL || '/documents/resume.pdf';
-  const [fileState, setFileState] = useState<'checking' | 'ready' | 'missing'>('checking');
-
-  useEffect(() => {
-    const controller = new AbortController();
-    fetch(resumeUrl, { method: 'HEAD', signal: controller.signal })
-      .then((response) => {
-        const isPdf = response.headers.get('content-type')?.toLowerCase().includes('application/pdf');
-        setFileState(response.ok && isPdf ? 'ready' : 'missing');
-      })
-      .catch((error: unknown) => {
-        if (error instanceof DOMException && error.name === 'AbortError') return;
-        setFileState('missing');
-      });
-    return () => controller.abort();
-  }, [resumeUrl]);
-
+  const resumeUrl = import.meta.env.VITE_RESUME_URL || '/documents/Kshitij_Garg_Resume.pdf';
   return <PageFrame><section className="inner-page wrap resume-page">
-    <SectionHeading eyebrow="Resume" title={<>A clear picture<br />of <span className="serif-accent">my journey.</span></>} detail="A concise overview of my education, skills, and project work." />
-    <div className="resume-panel">
-      <div className={`resume-presentation${fileState === 'ready' ? ' has-file' : ''}`}>
-        {fileState === 'ready' ? <iframe title="Kshitij Garg resume PDF" src={resumeUrl} /> : <div className="resume-art-placeholder"><span className="resume-monogram">KG</span><i>RESUME DOCUMENT</i><b>PDF / PUBLIC FILE</b><div aria-hidden="true" /></div>}
-      </div>
-      <div className="resume-copy"><span className="card-label">RESUME · PDF</span><h2>{fileState === 'ready' ? 'Ready to explore.' : fileState === 'checking' ? 'Checking for the PDF…' : 'The next chapter is being prepared.'}</h2><p>{fileState === 'ready' ? 'Open the resume in a new tab or download the PDF.' : fileState === 'checking' ? 'Checking the public resume location.' : 'My resume PDF is not available yet. Add the real file to the location below when it’s ready.'}</p>
-        <div className="resume-actions">{fileState === 'ready' ? <><a className="button button-quiet" href={resumeUrl} target="_blank" rel="noreferrer">View resume <ArrowUpRight /></a><a className="button button-primary" href={resumeUrl} download>Download resume <DownloadIcon /></a></> : <button className="button button-disabled" type="button" disabled aria-describedby="resume-status">{fileState === 'checking' ? 'Checking file…' : 'Resume unavailable'} <DownloadIcon /></button>}</div>
-        <span id="resume-status" className="resume-status" aria-live="polite">{fileState === 'ready' ? 'Verified PDF file' : 'Expected file: public/documents/resume.pdf'}</span>
-      </div>
+    <SectionHeading eyebrow="Resume · updated profile" title={<>Kshitij<br /><span className="serif-accent">Garg.</span></>} detail="Computer Science Engineering student building practical web, Python, and AI-powered applications." />
+    <div className="resume-sheet">
+      <header className="resume-sheet-head"><div><span className="resume-overline">COMPUTER SCIENCE ENGINEERING · JABALPUR, INDIA</span><h2>Kshitij Garg</h2><p>Full-Stack Developer · Python · AI Applications</p></div><div className="resume-contact"><a href="mailto:gargkshitij658@gmail.com">gargkshitij658@gmail.com</a><a href="tel:+918871368782">+91 88713 68782</a><a href={profile.linkedinUrl} target="_blank" rel="noreferrer">LinkedIn <ArrowUpRight /></a><a href={profile.githubUrl} target="_blank" rel="noreferrer">GitHub <ArrowUpRight /></a><Link to="/">Portfolio <ArrowUpRight /></Link></div></header>
+      <section className="resume-section"><h3>Professional summary</h3><p>Motivated Computer Science Engineering student with hands-on experience in web development, Python programming, Flask, API integration, automation, and AI-based applications. Built practical projects including an agriculture support platform, Smart Education Platform, virtual assistant, and responsive entertainment interface. Seeking an entry-level software development opportunity to apply technical skills and strengthen problem-solving abilities in a professional environment.</p></section>
+      <section className="resume-section"><h3>Technical skills</h3><div className="resume-skill-list">{['Python','JavaScript','SQL','HTML5','CSS','React.js','Bootstrap','REST API','Node.js','Flask','GitHub','VS Code','n8n','API Integration'].map(skill=><span key={skill}>{skill}</span>)}</div></section>
+      <section className="resume-section"><h3>Personal projects</h3><div className="resume-project"><div className="resume-project-title"><h4>Kshitij.dev</h4><span>Personal Portfolio Website</span></div><p>Developed and deployed a responsive personal portfolio to showcase technical skills, projects, and professional achievements. Built with HTML, CSS, JavaScript, React, and TypeScript; deployed on Netlify.</p><small>HTML · CSS · JavaScript · React · TypeScript · Netlify</small></div><div className="resume-project"><div className="resume-project-title"><h4>Kisan Mantri</h4><span>Agriculture Support Platform</span></div><p>Developed a web platform to support farmers with agriculture information and services, including weather functionality and fruit and vegetable listings. Used Python and n8n API integration for automation.</p><small>HTML · CSS · JavaScript · Python · n8n API</small></div><div className="resume-project"><div className="resume-project-title"><h4>Smart Education Platform</h4><span>Online Learning Website</span></div><p>Created an online learning platform for exploring courses and educational content. Implemented Gmail OTP authentication, course recommendations, video lectures, and study notes, with FastAPI backend APIs and SQLite.</p><small>Python · FastAPI · SQLite · HTML · CSS · JavaScript</small></div></section>
+      <div className="resume-bottom-grid"><section className="resume-section"><h3>Education</h3><div className="resume-education"><h4>Shri Ram Group of Institutions, Jabalpur</h4><p>B.Tech · Computer Science</p><span>June 2023 — June 2027 · Grade: 7.58</span></div></section><section className="resume-section"><h3>Certifications</h3><ul className="resume-certifications"><li>HackSRIT</li><li>TCS iON · Generative AI</li><li>TCS iON · AI Foundation</li><li>Jaro Education</li><li>VaultofCodes</li><li>AWS · Machine Learning</li><li>AWS · Generative AI</li></ul></section></div>
+      <footer className="resume-sheet-footer"><span>KSHITIJ GARG · RESUME</span><a className="button button-primary" href={resumeUrl} download>Download PDF <DownloadIcon /></a></footer>
     </div>
   </section></PageFrame>;
 }
@@ -228,7 +220,7 @@ function ContactPage() {
     window.location.href = `mailto:${profile.email}?subject=${subject}&body=${body}`;
     setStatus('Your email app should open with the message ready to send.');
   };
-  return <PageFrame><section className="inner-page wrap contact-page"><SectionHeading eyebrow="Contact" title={<>Have an idea?<br /><span className="serif-accent">Let’s build something.</span></>} detail="Have a question, an idea, or an opportunity to share? I’d be glad to hear from you." /><div className="contact-layout"><form className="contact-form" onSubmit={handleSubmit}><span className="card-label">SEND A NOTE</span><label htmlFor="contact-name">Your name</label><input id="contact-name" name="name" autoComplete="name" required placeholder="Your name" /><label htmlFor="contact-email">Email address</label><input id="contact-email" name="email" type="email" autoComplete="email" required placeholder="you@example.com" /><label htmlFor="contact-message">What’s on your mind?</label><textarea id="contact-message" name="message" required rows={5} placeholder="Tell me a little about it…" /><p className="form-note">{profile.email ? 'This opens your email app with a draft for you to review and send. The site does not deliver messages.' : 'No email address or message-delivery service is configured. The form is unavailable for now.'}</p><button className="button button-primary" type="submit" disabled={!profile.email}>{profile.email ? 'Prepare email draft' : 'Email not configured'} <ArrowUpRight /></button><p className={`form-status${status ? ' is-visible' : ''}`} aria-live="polite">{status}</p></form><aside className="contact-aside"><span className="contact-aside-icon">↗</span><span className="card-label">ELSEWHERE</span><h2>Find me<br /><span className="serif-accent">around the web.</span></h2><a href={profile.githubUrl} target="_blank" rel="noreferrer" className="contact-social">GitHub <span>View profile</span><ArrowUpRight /></a><a href={profile.linkedinUrl} target="_blank" rel="noreferrer" className="contact-social">LinkedIn <span>Connect</span><ArrowUpRight /></a>{profile.email ? <a href={`mailto:${profile.email}`} className="contact-social">Email <span>{profile.email}</span><ArrowUpRight /></a> : <p className="contact-email-empty">Email link will appear when a public address is configured.</p>}</aside></div></section></PageFrame>;
+  return <PageFrame><section className="inner-page wrap contact-page"><SectionHeading eyebrow="Contact" title={<>Have an idea?<br /><span className="serif-accent">Let’s build something.</span></>} detail="Have a question, an idea, or an opportunity to share? I’d be glad to hear from you." /><div className="contact-layout"><form className="contact-form" onSubmit={handleSubmit}><span className="card-label">SEND A NOTE</span><label htmlFor="contact-name">Your name</label><input id="contact-name" name="name" autoComplete="name" required placeholder="Your name" /><label htmlFor="contact-email">Email address</label><input id="contact-email" name="email" type="email" autoComplete="email" required placeholder="you@example.com" /><label htmlFor="contact-message">What’s on your mind?</label><textarea id="contact-message" name="message" required rows={5} placeholder="Tell me a little about it…" /><p className="form-note">{profile.email ? 'This opens your email app with a draft for you to review and send. The site does not deliver messages.' : 'No email address or message-delivery service is configured. The form is unavailable for now.'}</p><button className="button button-primary" type="submit" disabled={!profile.email}>{profile.email ? 'Prepare email draft' : 'Email not configured'} <ArrowUpRight /></button><p className={`form-status${status ? ' is-visible' : ''}`} aria-live="polite">{status}</p></form><aside className="contact-aside"><span className="contact-aside-icon">↗</span><span className="footer-label">ELSEWHERE</span><h2>Find me<br /><span className="serif-accent">around the web.</span></h2><a href={profile.githubUrl} target="_blank" rel="noreferrer" className="contact-social">GitHub <span>View profile</span><ArrowUpRight /></a><a href={profile.linkedinUrl} target="_blank" rel="noreferrer" className="contact-social">LinkedIn <span>Connect</span><ArrowUpRight /></a>{profile.email ? <a href={`mailto:${profile.email}`} className="contact-social">Email <span>{profile.email}</span><ArrowUpRight /></a> : <p className="contact-email-empty">Email link will appear when a public address is configured.</p>}</aside></div></section></PageFrame>;
 }
 
 function NotFoundPage() {
@@ -248,7 +240,7 @@ function App() {
     if (openGraphTitle) openGraphTitle.content = metadata.title;
     if (openGraphDescription) openGraphDescription.content = metadata.description;
   }, [location.pathname]);
-  return <><a className="skip-link" href="#main-content">Skip to content</a><Header /><div id="main-content" tabIndex={-1}><AnimatePresence mode="wait"><Routes location={location} key={location.pathname}><Route path="/" element={<HomePage />} /><Route path="/about" element={<AboutPage />} /><Route path="/skills" element={<SkillsPage />} /><Route path="/projects" element={<PageFrame><ProjectsSection /></PageFrame>} /><Route path="/certificates" element={<PageFrame><CertificatesSection /></PageFrame>} /><Route path="/resume" element={<ResumePage />} /><Route path="/contact" element={<ContactPage />} /><Route path="*" element={<NotFoundPage />} /></Routes></AnimatePresence></div><Footer /></>;
+  return <><a className="skip-link" href="#main-content">Skip to content</a><Header /><div id="main-content" tabIndex={-1}><AnimatePresence mode="wait"><Routes location={location} key={location.pathname}><Route path="/" element={<HomePage />} /><Route path="/about" element={<AboutPage />} /><Route path="/expertise" element={<ExpertisePage />} /><Route path="/skills" element={<SkillsPage />} /><Route path="/projects" element={<PageFrame><ProjectsSection /></PageFrame>} /><Route path="/certificates" element={<PageFrame><CertificatesSection /></PageFrame>} /><Route path="/resume" element={<ResumePage />} /><Route path="/contact" element={<ContactPage />} /><Route path="*" element={<NotFoundPage />} /></Routes></AnimatePresence></div><Footer /></>;
 }
 
 export default App;

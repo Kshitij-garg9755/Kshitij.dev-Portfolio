@@ -9,7 +9,7 @@ export default function CertificatesSection() {
           <div className="section-heading">
             <span className="eyebrow"><span className="eyebrow-dot" />Certificates</span>
             <h1>Learning. Building.<br /><span className="serif-accent">Growing.</span></h1>
-            <p>My learning journey is ongoing. This section will showcase verified certificates and professional achievements as they are added.</p>
+            <p>Certificates and learning credentials listed in my resume. Open a credential to view its certificate or verification page.</p>
           </div>
           <div className="certificate-grid">
             {certificates.map((certificate) => <CertificateCard key={`${certificate.title}-${certificate.organization}`} certificate={certificate} />)}
